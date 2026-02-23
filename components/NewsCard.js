@@ -1,4 +1,4 @@
-// components/NewsCard.js
+'use client'
 import { formatDistanceToNow } from 'date-fns'
 import { es } from 'date-fns/locale'
 import AssetTags from './AssetTags'
@@ -23,25 +23,33 @@ export default function NewsCard({ news, featured = false, onClick }) {
     ? formatDistanceToNow(new Date(news.publishedAt), { addSuffix: true, locale: es })
     : ''
 
+  function shareWhatsApp(e) {
+    e.stopPropagation()
+    const text = `📊 *${news.headline}*\n\n${news.summary}\n\n🔗 marketpulse-chi.vercel.app`
+    window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank')
+  }
+
+  function shareTwitter(e) {
+    e.stopPropagation()
+    const text = `📊 ${news.headline} — marketpulse-chi.vercel.app`
+    window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}`, '_blank')
+  }
+
   return (
     <div
       onClick={onClick}
       style={{
-        background: 'var(--surface)',
-        padding: '1.75rem',
-        cursor: 'pointer',
-        position: 'relative',
-        overflow: 'hidden',
-        transition: 'background 0.2s',
+        background: 'var(--surface)', padding: '1.75rem',
+        cursor: 'pointer', position: 'relative',
+        overflow: 'hidden', transition: 'background 0.2s',
       }}
       onMouseEnter={e => e.currentTarget.style.background = 'var(--surface2)'}
       onMouseLeave={e => e.currentTarget.style.background = 'var(--surface)'}
     >
-      {/* Barra lateral de impacto */}
+      {/* Barra lateral */}
       <div style={{
         position: 'absolute', top: 0, left: 0,
-        width: 3, height: '100%',
-        background: impact.bar,
+        width: 3, height: '100%', background: impact.bar,
       }} />
 
       {/* Meta */}
@@ -94,20 +102,52 @@ export default function NewsCard({ news, featured = false, onClick }) {
       {/* Activos */}
       <AssetTags bullish={news.bullish} bearish={news.bearish} neutral={news.neutral} />
 
-      {/* Fuente */}
-      {news.source && (
-        <div style={{
-          marginTop: '1rem', fontFamily: "'DM Mono', monospace",
-          fontSize: '0.68rem', color: 'var(--muted)',
-          display: 'flex', alignItems: 'center', gap: 6,
-        }}>
-          <span style={{
-            width: 5, height: 5, borderRadius: '50%',
-            background: 'var(--muted)', display: 'inline-block',
-          }} />
-          {news.source}
+      {/* Footer: fuente + compartir */}
+      <div style={{
+        marginTop: '1rem', display: 'flex',
+        alignItems: 'center', justifyContent: 'space-between',
+      }}>
+        {news.source && (
+          <div style={{
+            fontFamily: "'DM Mono', monospace",
+            fontSize: '0.68rem', color: 'var(--muted)',
+            display: 'flex', alignItems: 'center', gap: 6,
+          }}>
+            <span style={{
+              width: 5, height: 5, borderRadius: '50%',
+              background: 'var(--muted)', display: 'inline-block',
+            }} />
+            {news.source}
+          </div>
+        )}
+
+        {/* Botones compartir */}
+        <div style={{ display: 'flex', gap: 6 }}>
+          <ShareBtn onClick={shareWhatsApp} label="WhatsApp" color="#25D366" />
+          <ShareBtn onClick={shareTwitter} label="X" color="#1DA1F2" />
         </div>
-      )}
+      </div>
     </div>
+  )
+}
+
+function ShareBtn({ onClick, label, color }) {
+  return (
+    <button
+      onClick={onClick}
+      style={{
+        fontFamily: "'DM Mono', monospace",
+        fontSize: '0.65rem', fontWeight: 500,
+        letterSpacing: '0.05em',
+        background: 'transparent',
+        color, border: `1px solid ${color}33`,
+        padding: '3px 8px', borderRadius: 2,
+        cursor: 'pointer', transition: 'all 0.2s',
+      }}
+      onMouseEnter={e => e.currentTarget.style.background = `${color}22`}
+      onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+    >
+      {label}
+    </button>
   )
 }
