@@ -27,7 +27,7 @@ export default function NewsGrid({ news }) {
   }, {})
 
   const filtered = news.filter(function(item) {
-    const matchFilter = activeFilter === 'all' || item.type === activeFilter || item.category === activeFilter
+    const matchFilter = activeFilter === 'all' || item.type === activeFilter || item.category === activeFilter || item.impact === activeFilter
     const matchSearch = search === '' ||
       item.headline.toLowerCase().includes(search.toLowerCase()) ||
       item.summary.toLowerCase().includes(search.toLowerCase()) ||
@@ -42,11 +42,36 @@ export default function NewsGrid({ news }) {
   return (
     <div style={{ position: 'relative', zIndex: 1 }}>
       <div style={{ maxWidth: 1200, margin: '1.5rem auto 0', padding: '0 2rem', display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
-        <StatBox label="Alto impacto" count={counts.alto || 0} color="var(--down)" />
-        <StatBox label="Medio impacto" count={counts.medio || 0} color="var(--neutral)" />
-        <StatBox label="Bajo impacto" count={counts.bajo || 0} color="var(--up)" />
-        <StatBox label="Total noticias" count={news.length} color="var(--accent)" />
+        <StatBox
+          label="Alto impacto"
+          count={counts.alto || 0}
+          color="var(--down)"
+          active={activeFilter === 'alto'}
+          onClick={function() { setActiveFilter(activeFilter === 'alto' ? 'all' : 'alto') }}
+        />
+        <StatBox
+          label="Medio impacto"
+          count={counts.medio || 0}
+          color="var(--neutral)"
+          active={activeFilter === 'medio'}
+          onClick={function() { setActiveFilter(activeFilter === 'medio' ? 'all' : 'medio') }}
+        />
+        <StatBox
+          label="Bajo impacto"
+          count={counts.bajo || 0}
+          color="var(--up)"
+          active={activeFilter === 'bajo'}
+          onClick={function() { setActiveFilter(activeFilter === 'bajo' ? 'all' : 'bajo') }}
+        />
+        <StatBox
+          label="Total noticias"
+          count={news.length}
+          color="var(--accent)"
+          active={activeFilter === 'all'}
+          onClick={function() { setActiveFilter('all') }}
+        />
       </div>
+
       <div style={{ maxWidth: 1200, margin: '1.25rem auto 0', padding: '0 2rem' }}>
         <input
           type="text"
@@ -56,6 +81,7 @@ export default function NewsGrid({ news }) {
           style={{ width: '100%', background: 'var(--surface)', border: '1px solid var(--border)', color: 'var(--text)', fontFamily: 'Syne, sans-serif', fontSize: '0.85rem', padding: '10px 16px', borderRadius: 2, outline: 'none' }}
         />
       </div>
+
       <div style={{ maxWidth: 1200, margin: '1rem auto 1.5rem', padding: '0 2rem', display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
         {FILTERS.map(function(f) {
           return (
@@ -69,6 +95,7 @@ export default function NewsGrid({ news }) {
           )
         })}
       </div>
+
       <main style={{ maxWidth: 1200, margin: '0 auto', padding: '0 2rem 4rem' }}>
         {highImpact.length > 0 && (
           <div>
@@ -78,8 +105,16 @@ export default function NewsGrid({ news }) {
                 return <NewsCard key={item.id} news={item} featured={i === 0} onClick={function() { setSelectedNews(item) }} />
               })}
             </div>
+            {highImpact.length > 2 && (
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 1, background: 'var(--border)', marginTop: 1 }}>
+                {highImpact.slice(2).map(function(item) {
+                  return <NewsCard key={item.id} news={item} onClick={function() { setSelectedNews(item) }} />
+                })}
+              </div>
+            )}
           </div>
         )}
+
         {rest.length > 0 && (
           <div>
             <div style={{ height: 1, background: 'var(--border)', margin: '2rem 0' }} />
@@ -91,12 +126,14 @@ export default function NewsGrid({ news }) {
             </div>
           </div>
         )}
+
         {filtered.length === 0 && (
           <div style={{ textAlign: 'center', padding: '4rem', color: 'var(--muted)', fontFamily: 'DM Mono, monospace', fontSize: '0.85rem' }}>
             No hay noticias que coincidan.
           </div>
         )}
       </main>
+
       {selectedNews && <NewsModal news={selectedNews} onClose={function() { setSelectedNews(null) }} />}
     </div>
   )
@@ -104,7 +141,18 @@ export default function NewsGrid({ news }) {
 
 function StatBox(props) {
   return (
-    <div style={{ background: 'var(--surface)', border: '1px solid var(--border)', padding: '0.6rem 1.25rem', display: 'flex', alignItems: 'center', gap: 10, borderRadius: 2 }}>
+    <div
+      onClick={props.onClick}
+      style={{
+        background: props.active ? 'var(--surface2)' : 'var(--surface)',
+        border: props.active ? '1px solid ' + props.color : '1px solid var(--border)',
+        padding: '0.6rem 1.25rem',
+        display: 'flex', alignItems: 'center', gap: 10,
+        borderRadius: 2, cursor: 'pointer', transition: 'all 0.2s',
+      }}
+      onMouseEnter={function(e) { e.currentTarget.style.borderColor = props.color }}
+      onMouseLeave={function(e) { e.currentTarget.style.borderColor = props.active ? props.color : 'var(--border)' }}
+    >
       <span style={{ fontFamily: 'DM Mono, monospace', fontSize: '1.4rem', fontWeight: 700, color: props.color }}>{props.count}</span>
       <span style={{ fontFamily: 'DM Mono, monospace', fontSize: '0.65rem', letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--muted)' }}>{props.label}</span>
     </div>
