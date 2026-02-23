@@ -7,7 +7,7 @@ import Ticker from '@/components/Ticker'
 import NewsGrid from '@/components/NewsGrid'
 
 // Revalidar cada 5 minutos (ISR de Next.js)
-export const revalidate = 300
+export const revalidate = 60
 
 async function getNews() {
   try {
