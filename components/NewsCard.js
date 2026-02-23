@@ -25,14 +25,14 @@ export default function NewsCard({ news, featured = false, onClick }) {
 
   function shareWhatsApp(e) {
     e.stopPropagation()
-    const text = `📊 *${news.headline}*\n\n${news.summary}\n\n🔗 marketpulse-chi.vercel.app`
-    window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank')
+    const text = '📊 *' + news.headline + '*\n\n' + news.summary + '\n\nhttps://marketpulse-chi.vercel.app'
+    window.open('https://wa.me/?text=' + encodeURIComponent(text), '_blank')
   }
 
   function shareTwitter(e) {
     e.stopPropagation()
-    const text = `📊 ${news.headline} — marketpulse-chi.vercel.app`
-    window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}`, '_blank')
+    const text = '📊 ' + news.headline + ' — https://marketpulse-chi.vercel.app'
+    window.open('https://twitter.com/intent/tweet?text=' + encodeURIComponent(text), '_blank')
   }
 
   return (
@@ -46,13 +46,11 @@ export default function NewsCard({ news, featured = false, onClick }) {
       onMouseEnter={e => e.currentTarget.style.background = 'var(--surface2)'}
       onMouseLeave={e => e.currentTarget.style.background = 'var(--surface)'}
     >
-      {/* Barra lateral */}
       <div style={{
         position: 'absolute', top: 0, left: 0,
         width: 3, height: '100%', background: impact.bar,
       }} />
 
-      {/* Meta */}
       <div style={{
         display: 'flex', alignItems: 'center',
         gap: '0.75rem', marginBottom: '1rem', flexWrap: 'wrap',
@@ -61,7 +59,7 @@ export default function NewsCard({ news, featured = false, onClick }) {
           fontFamily: "'DM Mono', monospace", fontSize: '0.65rem',
           fontWeight: 500, letterSpacing: '0.1em', textTransform: 'uppercase',
           background: impact.bg, color: impact.color,
-          border: `1px solid ${impact.border}`,
+          border: '1px solid ' + impact.border,
           padding: '3px 8px', borderRadius: 2,
         }}>
           {news.impact === 'alto' ? '▲ Alto' : news.impact === 'medio' ? '◆ Medio' : '● Bajo'} impacto
@@ -69,7 +67,7 @@ export default function NewsCard({ news, featured = false, onClick }) {
         <span style={{
           fontFamily: "'DM Mono', monospace", fontSize: '0.65rem',
           letterSpacing: '0.1em', textTransform: 'uppercase',
-          color: typeStyle.color, border: `1px solid ${typeStyle.border}`,
+          color: typeStyle.color, border: '1px solid ' + typeStyle.border,
           padding: '2px 7px', borderRadius: 2,
         }}>
           {news.type}
@@ -82,7 +80,6 @@ export default function NewsCard({ news, featured = false, onClick }) {
         </span>
       </div>
 
-      {/* Titular */}
       <h2 style={{
         fontFamily: "'DM Serif Display', serif",
         fontSize: featured ? '1.45rem' : '1.1rem',
@@ -91,7 +88,6 @@ export default function NewsCard({ news, featured = false, onClick }) {
         {news.headline}
       </h2>
 
-      {/* Resumen */}
       <p style={{
         fontSize: '0.84rem', lineHeight: 1.6,
         color: '#8a93a8', marginBottom: '1.25rem',
@@ -99,10 +95,8 @@ export default function NewsCard({ news, featured = false, onClick }) {
         {news.summary}
       </p>
 
-      {/* Activos */}
       <AssetTags bullish={news.bullish} bearish={news.bearish} neutral={news.neutral} />
 
-      {/* Footer: fuente + compartir */}
       <div style={{
         marginTop: '1rem', display: 'flex',
         alignItems: 'center', justifyContent: 'space-between',
@@ -121,7 +115,6 @@ export default function NewsCard({ news, featured = false, onClick }) {
           </div>
         )}
 
-        {/* Botones compartir */}
         <div style={{ display: 'flex', gap: 6 }}>
           <ShareBtn onClick={shareWhatsApp} label="WhatsApp" color="#25D366" />
           <ShareBtn onClick={shareTwitter} label="X" color="#1DA1F2" />
@@ -140,11 +133,11 @@ function ShareBtn({ onClick, label, color }) {
         fontSize: '0.65rem', fontWeight: 500,
         letterSpacing: '0.05em',
         background: 'transparent',
-        color, border: `1px solid ${color}33`,
+        color, border: '1px solid ' + color + '33',
         padding: '3px 8px', borderRadius: 2,
         cursor: 'pointer', transition: 'all 0.2s',
       }}
-      onMouseEnter={e => e.currentTarget.style.background = `${color}22`}
+      onMouseEnter={e => e.currentTarget.style.background = color + '22'}
       onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
     >
       {label}
