@@ -1,40 +1,41 @@
 'use client'
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
 import AssetTags from './AssetTags'
 
-const ASSET_TO_TRADINGVIEW = {
-  'SPX': 'SP:SPX', 'NDX': 'NASDAQ:NDX', 'DJI': 'DJ:DJI',
-  'DAX': 'XETR:DAX', 'IBEX 35': 'BME:IBC', 'CAC 40': 'EURONEXT:PX1',
-  'Nikkei': 'TVC:NI225', 'Hang Seng': 'TVC:HSI', 'MSCI EM': 'TVC:MXEF',
+const ASSET_TO_SYMBOL = {
   'XAU/USD': 'OANDA:XAUUSD', 'Oro': 'OANDA:XAUUSD', 'Gold': 'OANDA:XAUUSD',
   'XAG/USD': 'OANDA:XAGUSD', 'Plata': 'OANDA:XAGUSD', 'Silver': 'OANDA:XAGUSD',
-  'Cobre': 'OANDA:XCUUSD', 'Litio': 'TVC:LITHIUM',
   'WTI': 'OANDA:WTICOUSD', 'Brent': 'OANDA:BCOUSD',
-  'Gas Natural': 'NYMEX:NG1!', 'Gas': 'NYMEX:NG1!',
   'EUR/USD': 'OANDA:EURUSD', 'GBP/USD': 'OANDA:GBPUSD',
   'USD/JPY': 'OANDA:USDJPY', 'DXY': 'TVC:DXY',
   'AUD/USD': 'OANDA:AUDUSD', 'USD/CAD': 'OANDA:USDCAD',
+  'Cobre': 'OANDA:XCUUSD',
+  'SPX': 'SP:SPX', 'NDX': 'NASDAQ:NDX', 'DJI': 'DJ:DJI',
+  'DAX': 'XETR:DAX', 'Nikkei': 'TVC:NI225',
   'BTC': 'BINANCE:BTCUSDT', 'Bitcoin': 'BINANCE:BTCUSDT',
   'ETH': 'BINANCE:ETHUSDT', 'Ethereum': 'BINANCE:ETHUSDT',
   'AAPL': 'NASDAQ:AAPL', 'Tesla': 'NASDAQ:TSLA',
   'XOM': 'NYSE:XOM', 'CVX': 'NYSE:CVX',
-  'SQM': 'NYSE:SQM', 'ALB': 'NYSE:ALB',
+  'Gas Natural': 'NYMEX:NG1!', 'Gas': 'NYMEX:NG1!',
 }
 
-function getChartSymbol(bullish, bearish) {
+function getSymbol(bullish, bearish) {
   const all = [...bullish, ...bearish]
   for (const asset of all) {
-    if (ASSET_TO_TRADINGVIEW[asset]) return ASSET_TO_TRADINGVIEW[asset]
+    if (ASSET_TO_SYMBOL[asset]) return ASSET_TO_SYMBOL[asset]
   }
-  return 'SP:SPX'
+  return 'OANDA:XAUUSD'
 }
 
 export default function NewsModal({ news, onClose }) {
   const [tradingIdeas, setTradingIdeas] = useState(null)
   const [loadingIdeas, setLoadingIdeas] = useState(false)
-  const chartSymbol = getChartSymbol(news.bullish || [], news.bearish || [])
+  const [chartData, setChartData] = useState(null)
+  const [lastPrice, setLastPrice] = useState(null)
+  const chartRef = useRef(null)
+  const symbol = getSymbol(news.bullish || [], news.bearish || [])
 
   useEffect(() => {
     const handler = (e) => { if (e.key === 'Escape') onClose() }
@@ -47,33 +48,51 @@ export default function NewsModal({ news, onClose }) {
   }, [onClose])
 
   useEffect(() => {
+    fetch('/api/prices?symbol=' + symbol)
+      .then(r => r.json())
+      .then(data => {
+        if (data.success) {
+          setChartData(data.candles)
+          setLastPrice(data.lastPrice)
+        }
+      })
+      .catch(() => {})
+  }, [symbol])
+
+  useEffect(() => {
+    if (!chartData || !chartRef.current) return
+
     const script = document.createElement('script')
-    script.src = 'https://s3.tradingview.com/tv.js'
+    script.src = 'https://unpkg.com/lightweight-charts/dist/lightweight-charts.standalone.production.js'
     script.async = true
-    script.onload = () => {
-      if (window.TradingView) {
-        new window.TradingView.widget({
-          container_id: 'tv_chart',
-          symbol: chartSymbol,
-          interval: 'D',
-          theme: 'dark',
-          style: '1',
-          locale: 'es',
-          toolbar_bg: '#111318',
-          enable_publishing: false,
-          hide_top_toolbar: false,
-          hide_legend: false,
-          save_image: false,
-          height: 300,
-          width: '100%',
-        })
-      }
+    script.onload = function() {
+      if (!window.LightweightCharts || !chartRef.current) return
+      chartRef.current.innerHTML = ''
+      const chart = window.LightweightCharts.createChart(chartRef.current, {
+        width: chartRef.current.offsetWidth,
+        height: 280,
+        layout: { background: { color: '#111318' }, textColor: '#8a93a8' },
+        grid: { vertLines: { color: '#1e2430' }, horzLines: { color: '#1e2430' } },
+        crosshair: { mode: 1 },
+        rightPriceScale: { borderColor: '#1e2430' },
+        timeScale: { borderColor: '#1e2430', timeVisible: true },
+      })
+      const series = chart.addCandlestickSeries({
+        upColor: '#00e676',
+        downColor: '#ff4d6d',
+        borderUpColor: '#00e676',
+        borderDownColor: '#ff4d6d',
+        wickUpColor: '#00e676',
+        wickDownColor: '#ff4d6d',
+      })
+      series.setData(chartData)
+      chart.timeScale().fitContent()
     }
     document.head.appendChild(script)
     return () => {
       if (document.head.contains(script)) document.head.removeChild(script)
     }
-  }, [chartSymbol])
+  }, [chartData])
 
   async function generateTradingIdeas() {
     setLoadingIdeas(true)
@@ -108,14 +127,14 @@ export default function NewsModal({ news, onClose }) {
   return (
     <div onClick={onClose} style={{ position: 'fixed', inset: 0, background: 'rgba(10,12,15,0.92)', zIndex: 200, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '2rem' }}>
       <div onClick={e => e.stopPropagation()} style={{ background: 'var(--surface)', border: '1px solid var(--border)', maxWidth: 700, width: '100%', maxHeight: '90vh', overflowY: 'auto', padding: '2rem', position: 'relative' }}>
-        
+
         <button onClick={onClose} style={{ position: 'absolute', top: '1rem', right: '1rem', background: 'none', border: '1px solid var(--border)', color: 'var(--muted)', width: 32, height: 32, cursor: 'pointer', fontSize: '1rem', borderRadius: 2, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>✕</button>
 
         <div style={{ display: 'flex', gap: '0.75rem', marginBottom: '1rem', flexWrap: 'wrap' }}>
-          <span style={{ fontFamily: 'DM Mono, monospace', fontSize: '0.65rem', fontWeight: 500, letterSpacing: '0.1em', textTransform: 'uppercase', background: impactBg, color: impactColor, border: `1px solid ${impactBorder}`, padding: '3px 8px', borderRadius: 2 }}>
+          <span style={{ fontFamily: 'DM Mono, monospace', fontSize: '0.65rem', fontWeight: 500, letterSpacing: '0.1em', textTransform: 'uppercase', background: impactBg, color: impactColor, border: '1px solid ' + impactBorder, padding: '3px 8px', borderRadius: 2 }}>
             {news.impact === 'alto' ? 'Alto' : news.impact === 'medio' ? 'Medio' : 'Bajo'} impacto
           </span>
-          <span style={{ fontFamily: 'DM Mono, monospace', fontSize: '0.65rem', letterSpacing: '0.1em', textTransform: 'uppercase', color: news.type === 'rumor' ? 'var(--neutral)' : news.type === 'anuncio' ? 'var(--accent)' : 'var(--muted)', border: `1px solid ${news.type === 'rumor' ? 'rgba(255,209,102,0.3)' : news.type === 'anuncio' ? 'rgba(79,195,247,0.3)' : 'var(--border)'}`, padding: '2px 7px', borderRadius: 2 }}>
+          <span style={{ fontFamily: 'DM Mono, monospace', fontSize: '0.65rem', letterSpacing: '0.1em', textTransform: 'uppercase', color: news.type === 'rumor' ? 'var(--neutral)' : news.type === 'anuncio' ? 'var(--accent)' : 'var(--muted)', border: '1px solid ' + (news.type === 'rumor' ? 'rgba(255,209,102,0.3)' : news.type === 'anuncio' ? 'rgba(79,195,247,0.3)' : 'var(--border)'), padding: '2px 7px', borderRadius: 2 }}>
             {news.type}
           </span>
         </div>
@@ -135,8 +154,13 @@ export default function NewsModal({ news, onClose }) {
         </div>
 
         <div style={{ marginBottom: '1.25rem' }}>
-          <div style={{ fontFamily: 'DM Mono, monospace', fontSize: '0.7rem', letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--muted)', marginBottom: '0.75rem' }}>Gráfico — {chartSymbol}</div>
-          <div id="tv_chart" style={{ width: '100%', height: 300, background: 'var(--surface2)', border: '1px solid var(--border)' }} />
+          <div style={{ fontFamily: 'DM Mono, monospace', fontSize: '0.7rem', letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--muted)', marginBottom: '0.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <span>Gráfico 3 meses — {symbol}</span>
+            {lastPrice && <span style={{ color: 'var(--up)', fontSize: '0.85rem', fontWeight: 700 }}>{lastPrice.toFixed(2)}</span>}
+          </div>
+          <div ref={chartRef} style={{ width: '100%', height: 280, background: 'var(--surface2)', border: '1px solid var(--border)' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', color: 'var(--muted)', fontFamily: 'DM Mono, monospace', fontSize: '0.8rem' }}>Cargando gráfico...</div>
+          </div>
         </div>
 
         <div style={{ marginBottom: '1.25rem' }}>
