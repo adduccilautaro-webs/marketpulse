@@ -84,7 +84,7 @@ export default function NewsModal({ news, onClose }) {
       renderChart()
     } else {
       const script = document.createElement('script')
-      script.src = 'https://unpkg.com/lightweight-charts/dist/lightweight-charts.standalone.production.js'
+      script.src = 'https://unpkg.com/lightweight-charts@3.8.0/dist/lightweight-charts.standalone.production.js'
       script.async = true
       script.onload = renderChart
       document.head.appendChild(script)
