@@ -5,26 +5,31 @@ export async function POST(request) {
     const body = await request.json()
     const { headline, summary, bullish, bearish, impact } = body
 
-    const prompt = `Eres un trader profesional experto en análisis técnico y fundamental. 
-Se te dará una noticia financiera con sus activos afectados.
+    const prompt = `Eres un trader profesional experto en analisis tecnico y fundamental.
+Se te dara una noticia financiera con sus activos afectados.
 Genera 2 ideas de trading concretas y accionables basadas en esta noticia.
 
 NOTICIA: ${headline}
 RESUMEN: ${summary}
 IMPACTO: ${impact}
-ACTIVOS ALCISTAS: ${bullish.join(', ')}
-ACTIVOS BAJISTAS: ${bearish.join(', ')}
+ACTIVOS ALCISTAS: ${(bullish || []).join(', ')}
+ACTIVOS BAJISTAS: ${(bearish || []).join(', ')}
 
-Para cada idea incluí:
+IMPORTANTE sobre precios del Oro (XAU/USD):
+- El broker FBS cotiza el oro en cents, por lo que el precio se ve como ~5200-5300
+- Usa precios en ese formato para el oro (multiplica el precio spot por 2 aproximadamente)
+- Para todos los demas activos usa precios normales de mercado
+
+Para cada idea incluye:
 - direction: "LONG" o "SHORT"
-- asset: el activo específico
-- entry: precio o zona de entrada (ej: "cerca de 1.0850" o "ruptura de 2400")
+- asset: el activo especifico
+- entry: precio de entrada en formato del broker (para oro ~5200-5300)
 - stopLoss: nivel de stop loss
 - takeProfit: objetivo de precio
 - confidence: "Alta" | "Media" | "Baja"
-- rationale: explicación breve de 1-2 oraciones
+- rationale: explicacion breve de 1-2 oraciones en español
 
-Responde SOLO con JSON válido:
+Responde SOLO con JSON valido sin markdown:
 [
   {
     "direction": "LONG",
