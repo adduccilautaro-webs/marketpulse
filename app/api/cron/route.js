@@ -1,6 +1,6 @@
 import { initParse } from '@/lib/parse'
 import { analyzeNewsImpact } from '@/lib/analyzer'
-import { fetchFinancialNewsEN } from '@/lib/newsFetcher'
+import { fetchFinancialNewsEN, fetchFinancialNewsES } from '@/lib/newsFetcher'
 import { NextResponse } from 'next/server'
 
 export async function GET(request) {
@@ -13,7 +13,12 @@ export async function GET(request) {
   const results = { processed: 0, saved: 0, errors: [] }
 
   try {
-    const articles = await fetchFinancialNewsEN(null, 5)
+    const [articlesEN, articlesES] = await Promise.all([
+      fetchFinancialNewsEN(null, 3),
+      fetchFinancialNewsES(null, 3),
+    ])
+
+    const articles = [...articlesEN, ...articlesES]
     results.processed = articles.length
 
     for (const article of articles) {
