@@ -61,36 +61,33 @@ export default function NewsModal({ news, onClose }) {
 
   useEffect(() => {
     if (!chartData || !chartRef.current) return
-
-    const script = document.createElement('script')
-    script.src = 'https://unpkg.com/lightweight-charts/dist/lightweight-charts.standalone.production.js'
-    script.async = true
-    script.onload = function() {
+    function renderChart() {
       if (!window.LightweightCharts || !chartRef.current) return
       chartRef.current.innerHTML = ''
       const chart = window.LightweightCharts.createChart(chartRef.current, {
-        width: chartRef.current.offsetWidth,
+        width: chartRef.current.offsetWidth || 600,
         height: 280,
         layout: { background: { color: '#111318' }, textColor: '#8a93a8' },
         grid: { vertLines: { color: '#1e2430' }, horzLines: { color: '#1e2430' } },
-        crosshair: { mode: 1 },
         rightPriceScale: { borderColor: '#1e2430' },
         timeScale: { borderColor: '#1e2430', timeVisible: true },
       })
       const series = chart.addCandlestickSeries({
-        upColor: '#00e676',
-        downColor: '#ff4d6d',
-        borderUpColor: '#00e676',
-        borderDownColor: '#ff4d6d',
-        wickUpColor: '#00e676',
-        wickDownColor: '#ff4d6d',
+        upColor: '#00e676', downColor: '#ff4d6d',
+        borderUpColor: '#00e676', borderDownColor: '#ff4d6d',
+        wickUpColor: '#00e676', wickDownColor: '#ff4d6d',
       })
       series.setData(chartData)
       chart.timeScale().fitContent()
     }
-    document.head.appendChild(script)
-    return () => {
-      if (document.head.contains(script)) document.head.removeChild(script)
+    if (window.LightweightCharts) {
+      renderChart()
+    } else {
+      const script = document.createElement('script')
+      script.src = 'https://unpkg.com/lightweight-charts/dist/lightweight-charts.standalone.production.js'
+      script.async = true
+      script.onload = renderChart
+      document.head.appendChild(script)
     }
   }, [chartData])
 
@@ -155,11 +152,11 @@ export default function NewsModal({ news, onClose }) {
 
         <div style={{ marginBottom: '1.25rem' }}>
           <div style={{ fontFamily: 'DM Mono, monospace', fontSize: '0.7rem', letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--muted)', marginBottom: '0.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <span>Gráfico 3 meses — {symbol}</span>
+            <span>Grafico 3 meses</span>
             {lastPrice && <span style={{ color: 'var(--up)', fontSize: '0.85rem', fontWeight: 700 }}>{lastPrice.toFixed(2)}</span>}
           </div>
           <div ref={chartRef} style={{ width: '100%', height: 280, background: 'var(--surface2)', border: '1px solid var(--border)' }}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', color: 'var(--muted)', fontFamily: 'DM Mono, monospace', fontSize: '0.8rem' }}>Cargando gráfico...</div>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%', color: 'var(--muted)', fontFamily: 'DM Mono, monospace', fontSize: '0.8rem' }}>Cargando grafico...</div>
           </div>
         </div>
 
@@ -167,7 +164,7 @@ export default function NewsModal({ news, onClose }) {
           <div style={{ fontFamily: 'DM Mono, monospace', fontSize: '0.7rem', letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--muted)', marginBottom: '0.75rem' }}>Ideas de trading con IA</div>
           {!tradingIdeas && !loadingIdeas && (
             <button onClick={generateTradingIdeas} style={{ fontFamily: 'Syne, sans-serif', fontSize: '0.82rem', fontWeight: 600, background: 'var(--accent-dim)', color: 'var(--accent)', border: '1px solid rgba(79,195,247,0.4)', padding: '10px 20px', borderRadius: 2, cursor: 'pointer', width: '100%' }}>
-              ✨ Generar ideas de trading
+              Generar ideas de trading
             </button>
           )}
           {loadingIdeas && (
@@ -184,7 +181,7 @@ export default function NewsModal({ news, onClose }) {
                   <div>
                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.75rem' }}>
                       <span style={{ fontFamily: 'DM Mono, monospace', fontSize: '0.8rem', fontWeight: 700, color: idea.direction === 'LONG' ? 'var(--up)' : 'var(--down)' }}>
-                        {idea.direction === 'LONG' ? '▲ LONG' : '▼ SHORT'} — {idea.asset}
+                        {idea.direction === 'LONG' ? 'LONG' : 'SHORT'} -- {idea.asset}
                       </span>
                       <span style={{ fontFamily: 'DM Mono, monospace', fontSize: '0.65rem', color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
                         Confianza: {idea.confidence}
@@ -210,7 +207,7 @@ export default function NewsModal({ news, onClose }) {
 
         {news.url && (
           <a href={news.url} target="_blank" rel="noopener noreferrer" style={{ display: 'inline-block', marginTop: '1rem', fontFamily: 'DM Mono, monospace', fontSize: '0.72rem', color: 'var(--accent)', textDecoration: 'underline' }}>
-            Ver artículo original →
+            Ver articulo original
           </a>
         )}
       </div>
