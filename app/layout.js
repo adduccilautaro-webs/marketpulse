@@ -1,9 +1,11 @@
-// app/layout.js
 import './globals.css'
 
 export const metadata = {
   title: 'MarketPulse — Noticias que mueven mercados',
   description: 'Monitorea noticias, anuncios y rumores financieros con análisis de impacto en activos, índices, divisas, metales y energía.',
+  icons: {
+    icon: '/favicon.svg',
+  },
 }
 
 export default function RootLayout({ children }) {
