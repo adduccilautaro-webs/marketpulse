@@ -10,9 +10,25 @@ export async function GET(request) {
   }
 
   const Parse = initParse()
-  const results = { processed: 0, saved: 0, errors: [] }
+  const results = { processed: 0, saved: 0, deleted: 0, errors: [] }
 
   try {
+    // Borrar noticias de mas de 3 dias
+    const NewsItem = Parse.Object.extend('NewsItem')
+    const threeDaysAgo = new Date()
+    threeDaysAgo.setDate(threeDaysAgo.getDate() - 3)
+
+    const oldQuery = new Parse.Query(NewsItem)
+    oldQuery.lessThan('createdAt', threeDaysAgo)
+    oldQuery.limit(50)
+    const oldNews = await oldQuery.find({ useMasterKey: true })
+
+    for (const item of oldNews) {
+      await item.destroy({ useMasterKey: true })
+      results.deleted++
+    }
+
+    // Buscar noticias nuevas
     const queries = [
       'Federal Reserve inflation rates',
       'OPEC oil crude production',
@@ -40,7 +56,6 @@ export async function GET(request) {
 
     for (const article of articles) {
       try {
-        const NewsItem = Parse.Object.extend('NewsItem')
         const existing = new Parse.Query(NewsItem)
         existing.equalTo('url', article.url)
         const found = await existing.first({ useMasterKey: true })
