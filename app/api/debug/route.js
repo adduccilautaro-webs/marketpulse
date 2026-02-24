@@ -9,10 +9,3 @@ export async function GET() {
     return NextResponse.json({ success: false, error: error.message })
   }
 }
-```
-
-4. **"Commit changes"**
-
-Luego corré:
-```
-curl --ssl-no-revoke https://marketpulse-chi.vercel.app/api/debug
