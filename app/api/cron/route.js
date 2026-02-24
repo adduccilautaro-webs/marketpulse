@@ -1,7 +1,30 @@
 import { initParse } from '@/lib/parse'
 import { analyzeNewsImpact } from '@/lib/analyzer'
-import { fetchFinancialNewsEN, fetchFinancialNewsES } from '@/lib/newsFetcher'
 import { NextResponse } from 'next/server'
+
+async function fetchNews(query) {
+  const params = new URLSearchParams()
+  params.set('q', query)
+  params.set('lang', 'en')
+  params.set('max', '5')
+  params.set('sortby', 'publishedAt')
+  params.set('token', process.env.GNEWS_API_KEY)
+
+  const response = await fetch('https://gnews.io/api/v4/search?' + params.toString())
+  const data = await response.json()
+
+  return (data.articles || []).filter(function(a) {
+    return a.title && a.description
+  }).map(function(a) {
+    return {
+      headline: a.title,
+      summary: a.description,
+      source: a.source && a.source.name ? a.source.name : 'GNews',
+      url: a.url,
+      publishedAt: a.publishedAt,
+    }
+  })
+}
 
 export async function GET(request) {
   const authHeader = request.headers.get('authorization')
@@ -22,36 +45,34 @@ export async function GET(request) {
     oldQuery.lessThan('createdAt', threeDaysAgo)
     oldQuery.limit(50)
     const oldNews = await oldQuery.find({ useMasterKey: true })
-
     for (const item of oldNews) {
       await item.destroy({ useMasterKey: true })
       results.deleted++
     }
 
-    // Buscar noticias nuevas
+    // Buscar noticias con queries rotativas
     const queries = [
-      'Federal Reserve inflation rates',
-      'OPEC oil crude production',
-      'gold silver metals commodities',
-      'bitcoin ethereum crypto',
-      'stock market earnings GDP',
+      'gold markets dollar',
+      'Federal Reserve interest rates',
+      'oil crude OPEC',
+      'bitcoin crypto markets',
+      'stock market earnings',
+      'inflation economy GDP',
+      'euro dollar forex',
+      'silver commodities metals',
+      'natural gas energy',
       'China economy stimulus',
-      'ECB interest rates europe',
-      'dollar euro forex currency',
-      'natural gas energy prices',
-      'recession inflation bonds',
     ]
-
     const hour = new Date().getHours()
-    const queryEN = queries[hour % queries.length]
-    const queryES = queries[(hour + 1) % queries.length]
+    const query1 = queries[hour % queries.length]
+    const query2 = queries[(hour + 2) % queries.length]
 
-    const [articlesEN, articlesES] = await Promise.all([
-      fetchFinancialNewsEN(queryEN, 5),
-      fetchFinancialNewsES(queryES, 5),
+    const [articles1, articles2] = await Promise.all([
+      fetchNews(query1),
+      fetchNews(query2),
     ])
 
-    const articles = [...articlesEN, ...articlesES]
+    const articles = [...articles1, ...articles2]
     results.processed = articles.length
 
     for (const article of articles) {
