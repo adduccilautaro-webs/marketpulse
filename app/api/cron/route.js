@@ -5,7 +5,7 @@ import { NextResponse } from 'next/server'
 
 export async function GET(request) {
   const authHeader = request.headers.get('authorization')
-  if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
+  if (authHeader !== 'Bearer ' + process.env.CRON_SECRET) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
@@ -13,9 +13,26 @@ export async function GET(request) {
   const results = { processed: 0, saved: 0, errors: [] }
 
   try {
+    const queries = [
+      'Federal Reserve inflation rates',
+      'OPEC oil crude production',
+      'gold silver metals commodities',
+      'bitcoin ethereum crypto',
+      'stock market earnings GDP',
+      'China economy stimulus',
+      'ECB interest rates europe',
+      'dollar euro forex currency',
+      'natural gas energy prices',
+      'recession inflation bonds',
+    ]
+
+    const hour = new Date().getHours()
+    const queryEN = queries[hour % queries.length]
+    const queryES = queries[(hour + 1) % queries.length]
+
     const [articlesEN, articlesES] = await Promise.all([
-      fetchFinancialNewsEN(null, 3),
-      fetchFinancialNewsES(null, 3),
+      fetchFinancialNewsEN(queryEN, 5),
+      fetchFinancialNewsES(queryES, 5),
     ])
 
     const articles = [...articlesEN, ...articlesES]
