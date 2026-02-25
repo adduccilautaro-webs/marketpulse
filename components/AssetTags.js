@@ -1,5 +1,5 @@
-// components/AssetTags.js
-// Muestra los activos afectados al alza y a la baja
+'use client'
+import { useRouter } from 'next/navigation'
 
 export default function AssetTags({ bullish = [], bearish = [], neutral = [] }) {
   return (
@@ -10,7 +10,7 @@ export default function AssetTags({ bullish = [], bearish = [], neutral = [] }) 
             fontFamily: "'DM Mono', monospace", fontSize: '0.65rem',
             letterSpacing: '0.1em', textTransform: 'uppercase',
             color: 'var(--down)', marginBottom: 4,
-          }}>▼ Presión bajista</div>
+          }}>▼ Presion bajista</div>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
             {bearish.map(asset => (
               <AssetTag key={asset} label={asset} variant="down" />
@@ -24,7 +24,7 @@ export default function AssetTags({ bullish = [], bearish = [], neutral = [] }) 
             fontFamily: "'DM Mono', monospace", fontSize: '0.65rem',
             letterSpacing: '0.1em', textTransform: 'uppercase',
             color: 'var(--up)', marginBottom: 4, marginTop: bearish.length > 0 ? 8 : 0,
-          }}>▲ Presión alcista</div>
+          }}>▲ Presion alcista</div>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
             {bullish.map(asset => (
               <AssetTag key={asset} label={asset} variant="up" />
@@ -51,27 +51,29 @@ export default function AssetTags({ bullish = [], bearish = [], neutral = [] }) 
 }
 
 function AssetTag({ label, variant }) {
+  const router = useRouter()
   const styles = {
-    up: {
-      background: 'var(--up-dim)', color: 'var(--up)',
-      border: '1px solid rgba(0,230,118,0.2)',
-    },
-    down: {
-      background: 'var(--down-dim)', color: 'var(--down)',
-      border: '1px solid rgba(255,77,109,0.2)',
-    },
-    neutral: {
-      background: 'var(--neutral-dim)', color: 'var(--neutral)',
-      border: '1px solid rgba(255,209,102,0.2)',
-    },
+    up: { background: 'var(--up-dim)', color: 'var(--up)', border: '1px solid rgba(0,230,118,0.2)' },
+    down: { background: 'var(--down-dim)', color: 'var(--down)', border: '1px solid rgba(255,77,109,0.2)' },
+    neutral: { background: 'var(--neutral-dim)', color: 'var(--neutral)', border: '1px solid rgba(255,209,102,0.2)' },
   }
-
   return (
-    <span style={{
-      fontFamily: "'DM Mono', monospace", fontSize: '0.72rem',
-      fontWeight: 500, padding: '3px 10px', borderRadius: 2,
-      letterSpacing: '0.05em', ...styles[variant],
-    }}>
+    <span
+      onClick={function(e) {
+        e.stopPropagation()
+        router.push('/asset/' + encodeURIComponent(label))
+      }}
+      style={{
+        fontFamily: "'DM Mono', monospace", fontSize: '0.72rem',
+        fontWeight: 500, padding: '3px 10px', borderRadius: 2,
+        letterSpacing: '0.05em', cursor: 'pointer',
+        transition: 'opacity 0.15s',
+        ...styles[variant],
+      }}
+      onMouseEnter={function(e) { e.currentTarget.style.opacity = '0.7' }}
+      onMouseLeave={function(e) { e.currentTarget.style.opacity = '1' }}
+      title={'Ver analisis de ' + label}
+    >
       {label}
     </span>
   )
