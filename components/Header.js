@@ -27,6 +27,7 @@ export default function Header() {
     { label: 'Calendario', path: '/calendar' },
     { label: 'Simulador', path: '/simulator' },
     { label: 'Comparar', path: '/compare' },
+    { label: 'Mis Ideas', path: '/ideas' },
   ]
 
   return (
