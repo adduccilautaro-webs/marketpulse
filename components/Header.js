@@ -24,6 +24,7 @@ export default function Header() {
     { label: 'Noticias', path: '/' },
     { label: 'Analizar Activo', path: '/analyze' },
     { label: 'Portfolio', path: '/portfolio' },
+    { label: 'Calendario', path: '/calendar' },
   ]
 
   return (
