@@ -34,6 +34,7 @@ export default function NewsModal({ news, onClose }) {
   const [loadingIdeas, setLoadingIdeas] = useState(false)
   const [chartData, setChartData] = useState(null)
   const [lastPrice, setLastPrice] = useState(null)
+  const [savedIdeas, setSavedIdeas] = useState({})
   const chartRef = useRef(null)
   const symbol = getSymbol(news.bullish || [], news.bearish || [])
 
@@ -111,6 +112,30 @@ export default function NewsModal({ news, onClose }) {
       setTradingIdeas([{ error: 'No se pudieron generar ideas. Intentá de nuevo.' }])
     }
     setLoadingIdeas(false)
+  }
+
+  async function saveIdea(idea, index) {
+    try {
+      const response = await fetch('/api/ideas/save', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          asset: idea.asset,
+          direction: idea.direction,
+          entry: idea.entry,
+          stopLoss: idea.stopLoss,
+          takeProfit: idea.takeProfit,
+          confidence: idea.confidence,
+          rationale: idea.rationale,
+          headline: news.headline,
+          source: news.source,
+        }),
+      })
+      const data = await response.json()
+      if (data.success) {
+        setSavedIdeas(function(prev) { return { ...prev, [index]: true } })
+      }
+    } catch (err) {}
   }
 
   const dateStr = news.publishedAt
@@ -192,7 +217,14 @@ export default function NewsModal({ news, onClose }) {
                       <PriceBox label="Stop Loss" value={idea.stopLoss} color="var(--down)" />
                       <PriceBox label="Take Profit" value={idea.takeProfit} color="var(--up)" />
                     </div>
-                    <p style={{ fontSize: '0.8rem', lineHeight: 1.5, color: '#8a93a8', margin: 0 }}>{idea.rationale}</p>
+                    <p style={{ fontSize: '0.8rem', lineHeight: 1.5, color: '#8a93a8', margin: 0, marginBottom: '0.75rem' }}>{idea.rationale}</p>
+                    <button
+                      onClick={function() { saveIdea(idea, i) }}
+                      disabled={savedIdeas[i]}
+                      style={{ fontFamily: 'DM Mono, monospace', fontSize: '0.68rem', fontWeight: 500, background: savedIdeas[i] ? 'var(--up-dim)' : 'var(--surface)', color: savedIdeas[i] ? 'var(--up)' : 'var(--muted)', border: '1px solid ' + (savedIdeas[i] ? 'rgba(0,230,118,0.3)' : 'var(--border)'), padding: '4px 12px', borderRadius: 2, cursor: savedIdeas[i] ? 'default' : 'pointer', letterSpacing: '0.05em', textTransform: 'uppercase' }}
+                    >
+                      {savedIdeas[i] ? '✓ Guardada' : '+ Guardar idea'}
+                    </button>
                   </div>
                 )}
               </div>
