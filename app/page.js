@@ -14,8 +14,8 @@ async function getNews() {
     const Parse = initParse()
     const NewsItem = Parse.Object.extend('NewsItem')
     const query = new Parse.Query(NewsItem)
-    query.descending('publishedAt')
-    query.limit(30)
+    query.descending('createdAt')
+    query.limit(1000)
 
     const results = await query.find({ useMasterKey: true })
 
