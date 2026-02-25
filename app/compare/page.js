@@ -35,8 +35,12 @@ export default function ComparePage() {
     setLoading(false)
   }
 
-  const verdictColor = (v) => v === 'COMPRAR' ? 'var(--up)' : v === 'VENDER' ? 'var(--down)' : 'var(--neutral)'
-  const verdictBg = (v) => v === 'COMPRAR' ? 'var(--up-dim)' : v === 'VENDER' ? 'var(--down-dim)' : 'var(--neutral-dim)'
+  function verdictColor(v) {
+    return v === 'COMPRAR' ? 'var(--up)' : v === 'VENDER' ? 'var(--down)' : 'var(--neutral)'
+  }
+  function verdictBg(v) {
+    return v === 'COMPRAR' ? 'var(--up-dim)' : v === 'VENDER' ? 'var(--down-dim)' : 'var(--neutral-dim)'
+  }
 
   return (
     <div style={{ minHeight: '100vh', background: 'var(--bg)' }}>
@@ -56,21 +60,51 @@ export default function ComparePage() {
         </div>
 
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginBottom: '1rem' }}>
-          <input type="text" placeholder="Activo 1 (ej: Apple)" value={asset1} onChange={e => setAsset1(e.target.value)} onKeyDown={e => e.key === 'Enter' && compare()} style={{ background: 'var(--surface)', border: '1px solid var(--border)', color: 'var(--text)', fontFamily: "'Syne', sans-serif", fontSize: '0.9rem', padding: '12px 16px', borderRadius: 2, outline: 'none' }} />
-          <input type="text" placeholder="Activo 2 (ej: Bitcoin)" value={asset2} onChange={e => setAsset2(e.target.value)} onKeyDown={e => e.key === 'Enter' && compare()} style={{ background: 'var(--surface)', border: '1px solid var(--border)', color: 'var(--text)', fontFamily: "'Syne', sans-serif", fontSize: '0.9rem', padding: '12px 16px', borderRadius: 2, outline: 'none' }} />
+          <input
+            type="text"
+            placeholder="Activo 1 (ej: Apple)"
+            value={asset1}
+            onChange={e => setAsset1(e.target.value)}
+            onKeyDown={e => e.key === 'Enter' && compare()}
+            style={{ background: 'var(--surface)', border: '1px solid var(--border)', color: 'var(--text)', fontFamily: "'Syne', sans-serif", fontSize: '0.9rem', padding: '12px 16px', borderRadius: 2, outline: 'none' }}
+          />
+          <input
+            type="text"
+            placeholder="Activo 2 (ej: Bitcoin)"
+            value={asset2}
+            onChange={e => setAsset2(e.target.value)}
+            onKeyDown={e => e.key === 'Enter' && compare()}
+            style={{ background: 'var(--surface)', border: '1px solid var(--border)', color: 'var(--text)', fontFamily: "'Syne', sans-serif", fontSize: '0.9rem', padding: '12px 16px', borderRadius: 2, outline: 'none' }}
+          />
         </div>
 
         <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: '1.5rem' }}>
-          {EXAMPLES.map(ex => (
-            <button key={ex} onClick={() => { if (!asset1) setAsset1(ex); else setAsset2(ex) }} style={{ fontFamily: "'DM Mono', monospace", fontSize: '0.68rem', background: 'var(--surface)', color: 'var(--muted)', border: '1px solid var(--border)', padding: '4px 10px', borderRadius: 2, cursor: 'pointer' }}>{ex}</button>
-          ))}
+          {EXAMPLES.map(function(ex) {
+            return (
+              <button
+                key={ex}
+                onClick={function() { if (!asset1) setAsset1(ex); else setAsset2(ex) }}
+                style={{ fontFamily: "'DM Mono', monospace", fontSize: '0.68rem', background: 'var(--surface)', color: 'var(--muted)', border: '1px solid var(--border)', padding: '4px 10px', borderRadius: 2, cursor: 'pointer' }}
+              >
+                {ex}
+              </button>
+            )
+          })}
         </div>
 
-        <button onClick={compare} disabled={loading || !asset1 || !asset2} style={{ width: '100%', fontFamily: "'Syne', sans-serif", fontSize: '0.9rem', fontWeight: 600, background: loading || !asset1 || !asset2 ? 'var(--surface)' : 'var(--accent-dim)', color: loading || !asset1 || !asset2 ? 'var(--muted)' : 'var(--accent)', border: '1px solid rgba(79,195,247,0.4)', padding: '12px', borderRadius: 2, cursor: loading || !asset1 || !asset2 ? 'not-allowed' : 'pointer', marginBottom: '2rem' }}>
-          {loading ? 'Comparando...' : '⚡ Comparar Activos'}
+        <button
+          onClick={compare}
+          disabled={loading || !asset1 || !asset2}
+          style={{ width: '100%', fontFamily: "'Syne', sans-serif", fontSize: '0.9rem', fontWeight: 600, background: loading || !asset1 || !asset2 ? 'var(--surface)' : 'var(--accent-dim)', color: loading || !asset1 || !asset2 ? 'var(--muted)' : 'var(--accent)', border: '1px solid rgba(79,195,247,0.4)', padding: '12px', borderRadius: 2, cursor: loading || !asset1 || !asset2 ? 'not-allowed' : 'pointer', marginBottom: '2rem' }}
+        >
+          {loading ? 'Comparando...' : 'Comparar Activos'}
         </button>
 
-        {error && <div style={{ background: 'var(--down-dim)', border: '1px solid rgba(255,77,109,0.25)', padding: '1rem', borderRadius: 2, color: 'var(--down)', fontFamily: "'DM Mono', monospace", fontSize: '0.82rem', marginBottom: '1rem' }}>{error}</div>}
+        {error && (
+          <div style={{ background: 'var(--down-dim)', border: '1px solid rgba(255,77,109,0.25)', padding: '1rem', borderRadius: 2, color: 'var(--down)', fontFamily: "'DM Mono', monospace", fontSize: '0.82rem', marginBottom: '1rem' }}>
+            {error}
+          </div>
+        )}
 
         {loading && (
           <div style={{ textAlign: 'center', padding: '4rem', color: 'var(--muted)', fontFamily: "'DM Mono', monospace", fontSize: '0.85rem' }}>
@@ -111,4 +145,23 @@ export default function ComparePage() {
 
             {result.winner && (
               <div style={{ background: 'var(--surface)', border: '1px solid var(--accent)', borderLeft: '3px solid var(--accent)', padding: '1.5rem', marginBottom: '1rem' }}>
-                <div style={{ fontFamily: "'DM Mono', monospace", fontSize: '0.7rem', letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--accent)', marginBottom: '0.5rem' }}>⚡ Mejo
+                <div style={{ fontFamily: "'DM Mono', monospace", fontSize: '0.7rem', letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--accent)', marginBottom: '0.5rem' }}>Mejor opcion ahora</div>
+                <div style={{ fontFamily: "'DM Serif Display', serif", fontSize: '1.3rem', color: 'var(--text)', marginBottom: '0.5rem' }}>{result.winner}</div>
+                <p style={{ fontSize: '0.85rem', lineHeight: 1.6, color: 'var(--text)', margin: 0 }}>{result.winnerReason}</p>
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+    </div>
+  )
+}
+
+function CompareSection({ title, content, color }) {
+  return (
+    <div style={{ marginBottom: '0.75rem' }}>
+      <div style={{ fontFamily: "'DM Mono', monospace", fontSize: '0.62rem', letterSpacing: '0.1em', textTransform: 'uppercase', color: color || 'var(--muted)', marginBottom: '0.25rem' }}>{title}</div>
+      <p style={{ fontSize: '0.78rem', lineHeight: 1.5, color: '#8a93a8', margin: 0 }}>{content}</p>
+    </div>
+  )
+}
