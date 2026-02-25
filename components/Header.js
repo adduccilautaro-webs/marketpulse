@@ -25,6 +25,7 @@ export default function Header() {
     { label: 'Analizar Activo', path: '/analyze' },
     { label: 'Portfolio', path: '/portfolio' },
     { label: 'Calendario', path: '/calendar' },
+    { label: 'Simulador', path: '/simulator' },
   ]
 
   return (
