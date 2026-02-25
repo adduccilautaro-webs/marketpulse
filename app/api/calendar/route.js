@@ -43,7 +43,7 @@ Responde SOLO con este JSON sin markdown:
   ]
 }
 
-Genera entre 15 y 25 eventos reales y relevantes para esa semana. Los eventos deben estar ordenados por fecha y hora.`
+Genera exactamente 10 eventos reales y relevantes para esa semana, solo los mas importantes. Los eventos deben estar ordenados por fecha y hora.`
 
     const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
       method: 'POST',
@@ -53,7 +53,7 @@ Genera entre 15 y 25 eventos reales y relevantes para esa semana. Los eventos de
       },
       body: JSON.stringify({
         model: 'llama-3.3-70b-versatile',
-        max_tokens: 2000,
+        max_tokens: 3000,
         messages: [{ role: 'user', content: prompt }],
       }),
     })
