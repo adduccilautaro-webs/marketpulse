@@ -1,9 +1,11 @@
-// components/Header.js
 'use client'
 import { useEffect, useState } from 'react'
+import { usePathname, useRouter } from 'next/navigation'
 
 export default function Header() {
   const [time, setTime] = useState('')
+  const pathname = usePathname()
+  const router = useRouter()
 
   useEffect(() => {
     const update = () => {
@@ -18,6 +20,11 @@ export default function Header() {
     return () => clearInterval(id)
   }, [])
 
+  const navItems = [
+    { label: 'Noticias', path: '/' },
+    { label: 'Analizar Activo', path: '/analyze' },
+  ]
+
   return (
     <header style={{
       position: 'sticky', top: 0, zIndex: 100,
@@ -31,18 +38,55 @@ export default function Header() {
         display: 'flex', alignItems: 'center',
         justifyContent: 'space-between', height: 64,
       }}>
-        <div style={{
-          fontFamily: "'DM Serif Display', serif",
-          fontSize: '1.5rem', letterSpacing: '-0.5px',
-          display: 'flex', alignItems: 'center', gap: 8,
-        }}>
-          <span style={{
-            width: 8, height: 8, background: 'var(--accent)',
-            borderRadius: '50%', display: 'inline-block',
-            animation: 'pulse 2s ease-in-out infinite',
-          }} />
-          MarketPulse
+        <div style={{ display: 'flex', alignItems: 'center', gap: '2rem' }}>
+          <div
+            onClick={() => router.push('/')}
+            style={{
+              fontFamily: "'DM Serif Display', serif",
+              fontSize: '1.5rem', letterSpacing: '-0.5px',
+              display: 'flex', alignItems: 'center', gap: 8,
+              cursor: 'pointer',
+            }}
+          >
+            <span style={{
+              width: 8, height: 8, background: 'var(--accent)',
+              borderRadius: '50%', display: 'inline-block',
+              animation: 'pulse 2s ease-in-out infinite',
+            }} />
+            MarketPulse
+          </div>
+
+          <nav style={{ display: 'flex', gap: '0.25rem' }}>
+            {navItems.map(function(item) {
+              const active = pathname === item.path
+              return (
+                <button
+                  key={item.path}
+                  onClick={() => router.push(item.path)}
+                  style={{
+                    fontFamily: "'DM Mono', monospace",
+                    fontSize: '0.72rem', fontWeight: 500,
+                    letterSpacing: '0.08em', textTransform: 'uppercase',
+                    background: active ? 'var(--accent-dim)' : 'transparent',
+                    color: active ? 'var(--accent)' : 'var(--muted)',
+                    border: active ? '1px solid rgba(79,195,247,0.3)' : '1px solid transparent',
+                    padding: '5px 14px', borderRadius: 2,
+                    cursor: 'pointer', transition: 'all 0.2s',
+                  }}
+                  onMouseEnter={function(e) {
+                    if (!active) e.currentTarget.style.color = 'var(--text)'
+                  }}
+                  onMouseLeave={function(e) {
+                    if (!active) e.currentTarget.style.color = 'var(--muted)'
+                  }}
+                >
+                  {item.label}
+                </button>
+              )
+            })}
+          </nav>
         </div>
+
         <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
           <span style={{
             fontFamily: "'DM Mono', monospace", fontSize: '0.65rem',
