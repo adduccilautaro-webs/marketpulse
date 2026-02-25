@@ -26,6 +26,7 @@ export default function Header() {
     { label: 'Portfolio', path: '/portfolio' },
     { label: 'Calendario', path: '/calendar' },
     { label: 'Simulador', path: '/simulator' },
+    { label: 'Comparar', path: '/compare' },
   ]
 
   return (
