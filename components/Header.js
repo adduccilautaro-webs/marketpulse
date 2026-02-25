@@ -23,6 +23,7 @@ export default function Header() {
   const navItems = [
     { label: 'Noticias', path: '/' },
     { label: 'Analizar Activo', path: '/analyze' },
+    { label: 'Portfolio', path: '/portfolio' },
   ]
 
   return (
