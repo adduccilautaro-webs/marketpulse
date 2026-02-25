@@ -1,5 +1,5 @@
 'use client'
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import Header from '@/components/Header'
 
 export default function PortfolioPage() {
@@ -25,7 +25,7 @@ export default function PortfolioPage() {
         setError(data.error || 'Error al generar el portfolio.')
       }
     } catch (err) {
-      setError('Error de conexión. Intentá de nuevo.')
+      setError('Error de conexion. Intentá de nuevo.')
     }
     setLoading(false)
   }
@@ -42,7 +42,7 @@ export default function PortfolioPage() {
             Portfolio Recomendado
           </h1>
           <p style={{ fontFamily: "'DM Mono', monospace", fontSize: '0.8rem', color: 'var(--muted)', letterSpacing: '0.05em' }}>
-            Basado en noticias actuales + análisis de mercado con IA
+            Noticias actuales · Datos de precio · Figuras chartistas · IA
           </p>
         </div>
 
@@ -55,15 +55,13 @@ export default function PortfolioPage() {
         </div>
 
         {error && (
-          <div style={{ background: 'var(--down-dim)', border: '1px solid rgba(255,77,109,0.25)', padding: '1rem', borderRadius: 2, color: 'var(--down)', fontFamily: "'DM Mono', monospace", fontSize: '0.82rem' }}>
-            {error}
-          </div>
+          <div style={{ background: 'var(--down-dim)', border: '1px solid rgba(255,77,109,0.25)', padding: '1rem', borderRadius: 2, color: 'var(--down)', fontFamily: "'DM Mono', monospace", fontSize: '0.82rem' }}>{error}</div>
         )}
 
         {loading && (
           <div style={{ textAlign: 'center', padding: '4rem', color: 'var(--muted)', fontFamily: "'DM Mono', monospace", fontSize: '0.85rem' }}>
             <div style={{ marginBottom: '1rem', fontSize: '2rem' }}>⟳</div>
-            Analizando mercado y noticias con IA...
+            Analizando mercado, precios y figuras chartistas con IA...
           </div>
         )}
 
@@ -77,24 +75,34 @@ export default function PortfolioPage() {
             )}
 
             <div style={{ background: 'var(--surface)', border: '1px solid var(--border)', padding: '1.25rem', marginBottom: '1rem' }}>
-              <div style={{ fontFamily: "'DM Mono', monospace", fontSize: '0.7rem', letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--muted)', marginBottom: '1rem' }}>Composición del Portfolio</div>
+              <div style={{ fontFamily: "'DM Mono', monospace", fontSize: '0.7rem', letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--muted)', marginBottom: '1rem' }}>Composicion del Portfolio</div>
               {portfolio.positions && portfolio.positions.map(function(pos, i) {
+                const cp = pos.chartPattern
+                const cpColor = cp && cp.type === 'alcista' ? 'var(--up)' : cp && cp.type === 'bajista' ? 'var(--down)' : 'var(--neutral)'
+                const cpBg = cp && cp.type === 'alcista' ? 'var(--up-dim)' : cp && cp.type === 'bajista' ? 'var(--down-dim)' : 'var(--neutral-dim)'
                 return (
-                  <div key={i} style={{ borderTop: i > 0 ? '1px solid var(--border)' : 'none', paddingTop: i > 0 ? '1rem' : 0, marginTop: i > 0 ? '1rem' : 0 }}>
+                  <div key={i} style={{ borderTop: i > 0 ? '1px solid var(--border)' : 'none', paddingTop: i > 0 ? '1.25rem' : 0, marginTop: i > 0 ? '1.25rem' : 0 }}>
                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                         <span style={{ fontFamily: "'DM Mono', monospace", fontSize: '0.9rem', fontWeight: 700, color: 'var(--accent)' }}>{pos.asset}</span>
                         <span style={{ fontFamily: "'DM Mono', monospace", fontSize: '0.65rem', color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{pos.type}</span>
+                        <span style={{ fontFamily: "'DM Mono', monospace", fontSize: '0.65rem', color: riskColor[pos.risk] || 'var(--muted)', textTransform: 'uppercase' }}>Riesgo {pos.risk}</span>
                       </div>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                        <span style={{ fontFamily: "'DM Mono', monospace", fontSize: '0.7rem', color: riskColor[pos.risk] || 'var(--muted)', textTransform: 'uppercase' }}>Riesgo {pos.risk}</span>
-                        <span style={{ fontFamily: "'DM Mono', monospace", fontSize: '1.2rem', fontWeight: 700, color: 'var(--up)' }}>{pos.allocation}%</span>
-                      </div>
+                      <span style={{ fontFamily: "'DM Mono', monospace", fontSize: '1.2rem', fontWeight: 700, color: 'var(--up)' }}>{pos.allocation}%</span>
                     </div>
-                    <div style={{ background: 'var(--border)', height: 4, borderRadius: 2, marginBottom: '0.5rem' }}>
+                    <div style={{ background: 'var(--border)', height: 4, borderRadius: 2, marginBottom: '0.75rem' }}>
                       <div style={{ background: 'var(--accent)', height: 4, borderRadius: 2, width: pos.allocation + '%', transition: 'width 0.5s ease' }} />
                     </div>
-                    <p style={{ fontSize: '0.82rem', lineHeight: 1.5, color: '#8a93a8', margin: 0 }}>{pos.rationale}</p>
+                    <p style={{ fontSize: '0.82rem', lineHeight: 1.5, color: '#8a93a8', margin: 0, marginBottom: cp && cp.pattern ? '0.75rem' : 0 }}>{pos.rationale}</p>
+                    {cp && cp.pattern && (
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap', marginTop: '0.5rem' }}>
+                        <span style={{ fontFamily: "'DM Mono', monospace", fontSize: '0.65rem', background: cpBg, color: cpColor, border: '1px solid ' + cpColor + '44', padding: '2px 8px', borderRadius: 2, textTransform: 'uppercase' }}>
+                          {cp.type === 'alcista' ? '▲' : cp.type === 'bajista' ? '▼' : '◆'} {cp.pattern}
+                        </span>
+                        <span style={{ fontFamily: "'DM Mono', monospace", fontSize: '0.65rem', color: 'var(--muted)' }}>Fiabilidad: {cp.reliability}</span>
+                        <span style={{ fontSize: '0.75rem', color: '#8a93a8' }}>{cp.description}</span>
+                      </div>
+                    )}
                   </div>
                 )
               })}
@@ -105,8 +113,11 @@ export default function PortfolioPage() {
                 <div style={{ fontFamily: "'DM Mono', monospace", fontSize: '0.7rem', letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--down)', marginBottom: '1rem' }}>Activos a Evitar</div>
                 {portfolio.avoid.map(function(item, i) {
                   return (
-                    <div key={i} style={{ borderTop: i > 0 ? '1px solid var(--border)' : 'none', paddingTop: i > 0 ? '0.75rem' : 0, marginTop: i > 0 ? '0.75rem' : 0, display: 'flex', gap: 10 }}>
-                      <span style={{ fontFamily: "'DM Mono', monospace", fontSize: '0.85rem', fontWeight: 700, color: 'var(--down)', minWidth: 80 }}>{item.asset}</span>
+                    <div key={i} style={{ borderTop: i > 0 ? '1px solid var(--border)' : 'none', paddingTop: i > 0 ? '0.75rem' : 0, marginTop: i > 0 ? '0.75rem' : 0 }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: '0.25rem' }}>
+                        <span style={{ fontFamily: "'DM Mono', monospace", fontSize: '0.85rem', fontWeight: 700, color: 'var(--down)' }}>{item.asset}</span>
+                        {item.chartPattern && <span style={{ fontFamily: "'DM Mono', monospace", fontSize: '0.65rem', background: 'var(--down-dim)', color: 'var(--down)', border: '1px solid rgba(255,77,109,0.25)', padding: '2px 8px', borderRadius: 2 }}>▼ {item.chartPattern}</span>}
+                      </div>
                       <p style={{ fontSize: '0.82rem', lineHeight: 1.5, color: '#8a93a8', margin: 0 }}>{item.reason}</p>
                     </div>
                   )
