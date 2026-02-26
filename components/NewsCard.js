@@ -36,91 +36,56 @@ export default function NewsCard({ news, featured = false, onClick }) {
   }
 
   return (
-    <div
-      onClick={onClick}
-      style={{
-        background: 'var(--surface)', padding: '1.75rem',
-        cursor: 'pointer', position: 'relative',
-        overflow: 'hidden', transition: 'background 0.2s',
-      }}
-      onMouseEnter={e => e.currentTarget.style.background = 'var(--surface2)'}
-      onMouseLeave={e => e.currentTarget.style.background = 'var(--surface)'}
-    >
-      <div style={{
-        position: 'absolute', top: 0, left: 0,
-        width: 3, height: '100%', background: impact.bar,
-      }} />
+    <>
+      <style>{`
+        .news-card { background: var(--surface); padding: 1.75rem; cursor: pointer; position: relative; overflow: hidden; transition: background 0.2s; }
+        .news-card:hover { background: var(--surface2); }
+        .news-headline { font-family: 'DM Serif Display', serif; line-height: 1.35; color: var(--text); margin-bottom: 0.75rem; }
+        @media (max-width: 768px) {
+          .news-card { padding: 1.1rem 1rem 1rem 1.3rem; }
+          .news-headline { font-size: 1.05rem !important; }
+          .news-summary { font-size: 0.82rem !important; -webkit-line-clamp: unset !important; }
+        }
+      `}</style>
+      <div onClick={onClick} className="news-card">
+        <div style={{ position: 'absolute', top: 0, left: 0, width: 3, height: '100%', background: impact.bar }} />
 
-      <div style={{
-        display: 'flex', alignItems: 'center',
-        gap: '0.75rem', marginBottom: '1rem', flexWrap: 'wrap',
-      }}>
-        <span style={{
-          fontFamily: "'DM Mono', monospace", fontSize: '0.65rem',
-          fontWeight: 500, letterSpacing: '0.1em', textTransform: 'uppercase',
-          background: impact.bg, color: impact.color,
-          border: '1px solid ' + impact.border,
-          padding: '3px 8px', borderRadius: 2,
-        }}>
-          {news.impact === 'alto' ? '▲ Alto' : news.impact === 'medio' ? '◆ Medio' : '● Bajo'} impacto
-        </span>
-        <span style={{
-          fontFamily: "'DM Mono', monospace", fontSize: '0.65rem',
-          letterSpacing: '0.1em', textTransform: 'uppercase',
-          color: typeStyle.color, border: '1px solid ' + typeStyle.border,
-          padding: '2px 7px', borderRadius: 2,
-        }}>
-          {news.type}
-        </span>
-        <span style={{
-          marginLeft: 'auto', fontFamily: "'DM Mono', monospace",
-          fontSize: '0.68rem', color: 'var(--muted)',
-        }}>
-          {timeAgo}
-        </span>
-      </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.75rem', flexWrap: 'wrap' }}>
+          <span style={{ fontFamily: "'DM Mono', monospace", fontSize: '0.65rem', fontWeight: 500, letterSpacing: '0.08em', textTransform: 'uppercase', background: impact.bg, color: impact.color, border: '1px solid ' + impact.border, padding: '3px 8px', borderRadius: 2 }}>
+            {news.impact === 'alto' ? '▲ Alto' : news.impact === 'medio' ? '◆ Medio' : '● Bajo'}
+          </span>
+          <span style={{ fontFamily: "'DM Mono', monospace", fontSize: '0.65rem', letterSpacing: '0.08em', textTransform: 'uppercase', color: typeStyle.color, border: '1px solid ' + typeStyle.border, padding: '2px 7px', borderRadius: 2 }}>
+            {news.type}
+          </span>
+          <span style={{ marginLeft: 'auto', fontFamily: "'DM Mono', monospace", fontSize: '0.68rem', color: 'var(--muted)' }}>
+            {timeAgo}
+          </span>
+        </div>
 
-      <h2 style={{
-        fontFamily: "'DM Serif Display', serif",
-        fontSize: featured ? '1.45rem' : '1.1rem',
-        lineHeight: 1.35, color: 'var(--text)', marginBottom: '0.75rem',
-      }}>
-        {news.headline}
-      </h2>
+        <h2 className="news-headline" style={{ fontSize: featured ? '1.45rem' : '1.1rem' }}>
+          {news.headline}
+        </h2>
 
-      <p style={{
-        fontSize: '0.84rem', lineHeight: 1.6,
-        color: '#8a93a8', marginBottom: '1.25rem',
-      }}>
-        {news.summary}
-      </p>
+        <p className="news-summary" style={{ fontSize: '0.84rem', lineHeight: 1.6, color: '#8a93a8', marginBottom: '1rem' }}>
+          {news.summary}
+        </p>
 
-      <AssetTags bullish={news.bullish} bearish={news.bearish} neutral={news.neutral} />
+        <AssetTags bullish={news.bullish} bearish={news.bearish} neutral={news.neutral} />
 
-      <div style={{
-        marginTop: '1rem', display: 'flex',
-        alignItems: 'center', justifyContent: 'space-between',
-      }}>
-        {news.source && (
-          <div style={{
-            fontFamily: "'DM Mono', monospace",
-            fontSize: '0.68rem', color: 'var(--muted)',
-            display: 'flex', alignItems: 'center', gap: 6,
-          }}>
-            <span style={{
-              width: 5, height: 5, borderRadius: '50%',
-              background: 'var(--muted)', display: 'inline-block',
-            }} />
-            {news.source}
+        <div style={{ marginTop: '1rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 8 }}>
+          {news.source && (
+            <div style={{ fontFamily: "'DM Mono', monospace", fontSize: '0.68rem', color: 'var(--muted)', display: 'flex', alignItems: 'center', gap: 6 }}>
+              <span style={{ width: 5, height: 5, borderRadius: '50%', background: 'var(--muted)', display: 'inline-block' }} />
+              {news.source}
+            </div>
+          )}
+          <div style={{ display: 'flex', gap: 6 }}>
+            <ShareBtn onClick={shareWhatsApp} label="WhatsApp" color="#25D366" />
+            <ShareBtn onClick={shareTwitter} label="X" color="#1DA1F2" />
           </div>
-        )}
-
-        <div style={{ display: 'flex', gap: 6 }}>
-          <ShareBtn onClick={shareWhatsApp} label="WhatsApp" color="#25D366" />
-          <ShareBtn onClick={shareTwitter} label="X" color="#1DA1F2" />
         </div>
       </div>
-    </div>
+    </>
   )
 }
 
@@ -128,15 +93,7 @@ function ShareBtn({ onClick, label, color }) {
   return (
     <button
       onClick={onClick}
-      style={{
-        fontFamily: "'DM Mono', monospace",
-        fontSize: '0.65rem', fontWeight: 500,
-        letterSpacing: '0.05em',
-        background: 'transparent',
-        color, border: '1px solid ' + color + '33',
-        padding: '3px 8px', borderRadius: 2,
-        cursor: 'pointer', transition: 'all 0.2s',
-      }}
+      style={{ fontFamily: "'DM Mono', monospace", fontSize: '0.65rem', fontWeight: 500, letterSpacing: '0.05em', background: 'transparent', color, border: '1px solid ' + color + '33', padding: '4px 10px', borderRadius: 2, cursor: 'pointer', transition: 'all 0.2s', minHeight: 32 }}
       onMouseEnter={e => e.currentTarget.style.background = color + '22'}
       onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
     >
