@@ -12,14 +12,14 @@ export default function Header() {
   }, [pathname])
 
   const navItems = [
-    { label: 'Noticias', path: '/' },
-    { label: 'Analizar', path: '/analyze' },
-    { label: 'Portfolio', path: '/portfolio' },
-    { label: 'Calendario', path: '/calendar' },
-    { label: 'Simulador', path: '/simulator' },
-    { label: 'Comparar', path: '/compare' },
-    { label: 'Mis Ideas', path: '/ideas' },
-    { label: 'Heat Map', path: '/heatmap' },
+    { label: 'Noticias',   path: '/'          },
+    { label: 'Analizar',   path: '/analyze'   },
+    { label: 'Heat Map',   path: '/heatmap'   },
+    { label: 'Portfolio',  path: '/portfolio' },
+    { label: 'Calendario', path: '/calendar'  },
+    { label: 'Simulador',  path: '/simulator' },
+    { label: 'Comparar',   path: '/compare'   },
+    { label: 'Mis Ideas',  path: '/ideas'     },
   ]
 
   function navigate(path) {
