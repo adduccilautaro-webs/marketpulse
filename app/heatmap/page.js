@@ -1,5 +1,5 @@
-// app/heatmap/page.js
-
+'use client'
+import { useState, useEffect } from 'react'
 import Header from '@/components/Header'
 import HeatMap from '@/components/HeatMap'
 
