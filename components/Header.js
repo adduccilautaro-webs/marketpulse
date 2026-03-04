@@ -19,6 +19,7 @@ export default function Header() {
     { label: 'Simulador', path: '/simulator' },
     { label: 'Comparar', path: '/compare' },
     { label: 'Mis Ideas', path: '/ideas' },
+    { label: 'Heat Map', path: '/heatmap' },
   ]
 
   function navigate(path) {
